@@ -144,7 +144,7 @@ def query_list(csvfile: str, cdxfile: str, queryrange: int, limit: int, start: i
         
         vb.write(message=f"-----> {cdx_url}")
         cdxQuery = f"https://web.archive.org/cdx/search/cdx?output=json&url={cdx_url}{query_range}&matchType=domain&filter=statuscode:200&fl=timestamp,digest,mimetype,statuscode,original{limit}{filter_filetype}"
-        vb.write(message=f"-----> {cdxQuery}")
+        print("\nDEBUG: Final CDX Query ->", cdxQuery, flush=True)
 
 
         
