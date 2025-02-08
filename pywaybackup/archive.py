@@ -144,40 +144,7 @@ def query_list(csvfile: str, cdxfile: str, queryrange: int, limit: int, start: i
         filter_filetype = f'&filter=original:.*\\.({"|".join(filter_filetype)})$' if filter_filetype else ''
         
         vb.write(message=f"-----> {cdx_url}")
-        cdxQuery = f"https://web.archive.org/cdx/search/cdx?output=json&url={cdx_url}{query_range}&matchType=domain&filter=statuscode:200&fl=timestamp,digest,mimetype,statuscode,original{limit}{filter_filetype}"
-
-        ##Print CDX Query
-        import sys
-        sys.stderr.write("\nDEBUG (stderr): Final CDX Query -> " + cdxQuery + "\n")
-        sys.stderr.flush()
-    
-        try:
-            vb.write(message=f"-----> {cdxQuery}")
-            cdxfile_IO = open(cdxfile, "w")
-    
-            print("\nDEBUG: Sending request to Wayback Machine ->", cdxQuery)
-            with requests.get(cdxQuery, stream=True) as r:
-                print("\nDEBUG: Wayback Machine response status ->", r.status_code)
-                r.raise_for_status()
-    
-                with tqdm(unit='B', unit_scale=True, desc="download cdx".ljust(15)) as pbar:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            pbar.update(len(chunk))
-                            chunk = chunk.decode("utf-8")
-                            cdxfile_IO.write(chunk)
-            cdxfile_IO.close()
-        except requests.exceptions.ConnectionError:
-            vb.write(message="\nCONNECTION REFUSED -> could not query cdx server (max retries exceeded)\n")
-            os.remove(cdxfile)
-            os._exit(1)
-        except Exception as e:
-            ex.exception(message="\nUnexpected error while querying cdx server", e=e)
-            os.remove(cdxfile)
-            os._exit(1)
-    
-        return cdxfile
-
+        cdxQuery = f"https://web.archive.org/cdx/search/cdx?output=json&url={cdx_url}{query_range}&matchType=domain&filter=statuscode:200&collapse=timestamp:d&fl=timestamp,digest,mimetype,statuscode,original{limit}{filter_filetype}"
 
         
         try:
