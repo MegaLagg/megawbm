@@ -115,7 +115,7 @@ def query_list(csvfile: str, cdxfile: str, queryrange: int, limit: int, start: i
             vb.write(message="\nCDX file found to inject...")
             return True
         else:
-            vb.write(message="\nNo CDX file found to inject - querying snapshots...")
+            vb.write(message="\nNo CDX file found to inject - querying snapshots!!!")
             return False
     
     def query(cdxfile, queryrange, limit, filter_filetype, start, end, explicit):
@@ -127,16 +127,17 @@ def query_list(csvfile: str, cdxfile: str, queryrange: int, limit: int, start: i
         else: 
             query_range = "&from=" + str(datetime.now().year - queryrange)
         
+
         if config.domain and not config.subdir and not config.filename:
-            cdx_url = f"{config.domain}"
-        if config.domain and config.subdir and not config.filename:
-            cdx_url = f"{config.domain}/{config.subdir}"
-        if config.domain and config.subdir and config.filename:
-            cdx_url = f"{config.domain}/{config.subdir}/{config.filename}"
-        if config.domain and not config.subdir and config.filename:
+            cdx_url = f"{config.domain}"  # Keep only the main domain
+        elif config.domain and config.subdir and not config.filename:
+            cdx_url = f"{config.domain}/{config.subdir}"        
+        elif config.domain and config.subdir and config.filename:
+            cdx_url = f"{config.domain}/{config.subdir}/{config.filename}" 
+        elif config.domain and not config.subdir and config.filename:
             cdx_url = f"{config.domain}/{config.filename}"
         if not explicit:
-            cdx_url = f"{cdx_url}/*"
+            cdx_url = f"{config.domain}/*"  
         
         limit = f"&limit={limit}" if limit else ""
         
@@ -149,6 +150,7 @@ def query_list(csvfile: str, cdxfile: str, queryrange: int, limit: int, start: i
 
         
         try:
+            vb.write(message=f"-----> {cdxQuery}")
             cdxfile_IO = open(cdxfile, "w")
             with requests.get(cdxQuery, stream=True) as r:
                 r.raise_for_status()
